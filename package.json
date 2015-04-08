@@ -1,0 +1,25 @@
+{
+  "name": "container",
+  "version": "1.0.0",
+  "description": "Dependency injection container",
+  "main": "dist/container.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "/usr/bin/env node ./node_modules/.bin/jasmine"
+  },
+  "author": "Smotrov Dmitriy <dsxack@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "coffee-script": "^1.9.1",
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-coffee": "^2.3.1",
+    "gulp-print": "^1.1.0",
+    "gulp-sourcemaps": "^1.5.1",
+    "gulp-util": "^3.0.4",
+    "jasmine": "^2.2.1"
+  },
+  "repository": "https://github.com/DsXack/container.git"
+}
