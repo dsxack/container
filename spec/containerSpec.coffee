@@ -5,9 +5,7 @@ describe 'Container', ->
     container = new Container
 
     container.bind 'testFactory', (container, parameters) ->
-      return {
-        name: parameters.name
-      }
+      name: parameters.name
 
     firstInstance = container.make 'testFactory',
       name: 'firstInstance'
@@ -18,3 +16,21 @@ describe 'Container', ->
       name: 'secondInstance'
 
     expect(secondInstance.name).toBe('secondInstance')
+
+  it 'dependency injection', ->
+
+    container = new Container
+
+    container.bind 'firstFactory', (container, parameters) ->
+      dependency = container.make 'dependency', parameters
+
+      dependencyName: dependency.getName()
+
+    container.bind 'dependency', (container, parameters) ->
+      getName: ->
+        parameters.name
+
+    instance = container.make 'firstFactory',
+      name: 'dependencyName'
+
+    expect(instance.dependencyName).toBe('dependencyName')
