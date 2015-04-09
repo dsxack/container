@@ -1,7 +1,13 @@
 (function() {
   var Container;
 
-  Container = require('../dist/container');
+  if (typeof require !== "undefined" && require !== null) {
+    Container = require('../dist/container');
+  }
+
+  if (typeof window !== "undefined" && window !== null) {
+    Container = window.Container;
+  }
 
   describe('Container', function() {
     it('bind', function() {
@@ -71,7 +77,7 @@
           }
         };
       });
-      instance = container["for"]('factory').use('dependencyReplacement').as('dependency').make({
+      instance = container.will().use('dependencyReplacement').as('dependency').make('factory', {
         dependencyName: 'dependencyName'
       });
       expect(instance.getDependencyName()).toBe('dependencyNameReplacement');

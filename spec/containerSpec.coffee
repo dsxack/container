@@ -1,4 +1,5 @@
-Container = require '../dist/container'
+Container = require '../dist/container'  if require?
+Container = window.Container if window?
 
 describe 'Container', ->
   it 'bind', ->

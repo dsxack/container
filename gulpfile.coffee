@@ -44,7 +44,7 @@ gulp.task 'build-tests', ['clean'], ->
     return "output: #{ path }"
   .pipe gulp.dest 'spec'
 
-gulp.task 'watch', ['build', 'build-tests'] ->
+gulp.task 'watch', ['build', 'build-tests'], ->
   gulp.watch [
     'src/**/*.coffee'
     'spec/**/*.coffee'
