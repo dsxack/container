@@ -1,4 +1,6 @@
 # container
+![TravisCI](https://travis-ci.org/DsXack/container.svg?branch=master)
+
 
 ### install
 
