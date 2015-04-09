@@ -7,28 +7,30 @@
     it('bind', function() {
       var container, firstInstance, secondInstance;
       container = new Container;
-      container.bind('testFactory', function(container, parameters) {
+      container.bind('factory', function(container, parameters) {
         return {
           name: parameters.name
         };
       });
-      firstInstance = container.make('testFactory', {
+      firstInstance = container.make('factory', {
         name: 'firstInstance'
       });
       expect(firstInstance.name).toBe('firstInstance');
-      secondInstance = container.make('testFactory', {
+      secondInstance = container.make('factory', {
         name: 'secondInstance'
       });
       return expect(secondInstance.name).toBe('secondInstance');
     });
-    return it('dependency injection', function() {
+    it('dependency injection', function() {
       var container, instance;
       container = new Container;
-      container.bind('firstFactory', function(container, parameters) {
+      container.bind('factory', function(container, parameters) {
         var dependency;
-        dependency = container.make('dependency', parameters);
+        dependency = container.make('dependency', {
+          name: parameters.dependencyName
+        });
         return {
-          dependencyName: dependency.getName()
+          getDependencyName: dependency.getName
         };
       });
       container.bind('dependency', function(container, parameters) {
@@ -38,10 +40,50 @@
           }
         };
       });
-      instance = container.make('firstFactory', {
-        name: 'dependencyName'
+      instance = container.make('factory', {
+        dependencyName: 'dependencyName'
       });
-      return expect(instance.dependencyName).toBe('dependencyName');
+      return expect(instance.getDependencyName()).toBe('dependencyName');
+    });
+    return it('dependency replacement', function() {
+      var container, instance;
+      container = new Container;
+      container.bind('factory', function(container, parameters) {
+        var dependency;
+        dependency = container.make('dependency', {
+          name: parameters.dependencyName
+        });
+        return {
+          getDependencyName: dependency.getName
+        };
+      });
+      container.bind('dependency', function(container, parameters) {
+        return {
+          getName: function() {
+            return parameters.name;
+          }
+        };
+      });
+      container.bind('dependencyReplacement', function(container, parameters) {
+        return {
+          getName: function() {
+            return parameters.name + 'Replacement';
+          }
+        };
+      });
+      instance = container["for"]('factory').use('dependencyReplacement').as('dependency').make({
+        dependencyName: 'dependencyName'
+      });
+      expect(instance.getDependencyName()).toBe('dependencyNameReplacement');
+      instance = container.make('factory', {
+        dependencyName: 'dependencyName'
+      });
+      expect(instance.getDependencyName()).toBe('dependencyName');
+      container.when('factory').needs('dependency').give('dependencyReplacement');
+      instance = container.make('factory', {
+        dependencyName: 'dependencyName'
+      });
+      return expect(instance.getDependencyName()).toBe('dependencyNameReplacement');
     });
   });
 
