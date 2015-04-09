@@ -53,10 +53,10 @@ describe 'Container', ->
       getName: ->
         parameters.name + 'Replacement'
 
-    instance = container.for 'factory'
+    instance = container.will()
       .use 'dependencyReplacement'
       .as 'dependency'
-      .make
+      .make 'factory',
         dependencyName: 'dependencyName'
 
     expect(instance.getDependencyName()).toBe('dependencyNameReplacement')
