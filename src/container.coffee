@@ -3,9 +3,9 @@ class Container
     @bindings = {}
     @instances = {}
 
-  bind: (name, concrete, shared = false) ->
+  bind: (name, factory, shared = false) ->
     @bindings[name] =
-      concrete: concrete
+      factory: factory
       shared: shared
 
   bound: (name) ->
@@ -21,23 +21,35 @@ class Container
     if @instances[name]
       return @instances[name]
 
-    concrete = @getConcrete name
-    instance = @build concrete, parameters
+    factory = @getFactory name
+    instance = factory(this, parameters)
 
     if @isShared(name)
       @instances[name] = instance
 
     return instance
 
-  getConcrete: (name) ->
-    return @bindings[name]['concrete']
+  getFactory: (name) ->
+    return @bindings[name].factory
 
   isShared: (name) ->
-    @bindings[name]['shared']
+    @bindings[name].shared
 
-  build: (concrete, parameters) ->
-    concrete(this, parameters)
+  build: (name) ->
+    # TODO
 
-this.Container = Container if not exports?
+  when: (name) ->
+    # TODO
+
+if not exports?
+  global = this;
+  original = global.DI
+  global.DI = Container
+
+  Container.noConflict = ->
+    global.DI = original
+
+    return Container
+
 exports.Container = Container if exports?
 module.exports = Container if module?

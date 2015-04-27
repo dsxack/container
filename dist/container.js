@@ -1,5 +1,5 @@
 (function() {
-  var Container;
+  var Container, global, original;
 
   Container = (function() {
     function Container() {
@@ -7,12 +7,12 @@
       this.instances = {};
     }
 
-    Container.prototype.bind = function(name, concrete, shared) {
+    Container.prototype.bind = function(name, factory, shared) {
       if (shared == null) {
         shared = false;
       }
       return this.bindings[name] = {
-        concrete: concrete,
+        factory: factory,
         shared: shared
       };
     };
@@ -30,36 +30,42 @@
     };
 
     Container.prototype.make = function(name, parameters) {
-      var concrete, instance;
+      var factory, instance;
       if (this.instances[name]) {
         return this.instances[name];
       }
-      concrete = this.getConcrete(name);
-      instance = this.build(concrete, parameters);
+      factory = this.getFactory(name);
+      instance = factory(this, parameters);
       if (this.isShared(name)) {
         this.instances[name] = instance;
       }
       return instance;
     };
 
-    Container.prototype.getConcrete = function(name) {
-      return this.bindings[name]['concrete'];
+    Container.prototype.getFactory = function(name) {
+      return this.bindings[name].factory;
     };
 
     Container.prototype.isShared = function(name) {
-      return this.bindings[name]['shared'];
+      return this.bindings[name].shared;
     };
 
-    Container.prototype.build = function(concrete, parameters) {
-      return concrete(this, parameters);
-    };
+    Container.prototype.build = function(name) {};
+
+    Container.prototype.when = function(name) {};
 
     return Container;
 
   })();
 
   if (typeof exports === "undefined" || exports === null) {
-    this.Container = Container;
+    global = this;
+    original = global.DI;
+    global.DI = Container;
+    Container.noConflict = function() {
+      global.DI = original;
+      return Container;
+    };
   }
 
   if (typeof exports !== "undefined" && exports !== null) {

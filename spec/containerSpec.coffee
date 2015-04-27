@@ -1,77 +1,26 @@
 Container = require '../dist/container'  if require?
-Container = window.Container if window?
+Container = window.DI if window?
 
 describe 'Container', ->
-  it 'bind', ->
-    container = new Container
+  container = null
 
-    container.bind 'factory', (container, parameters) ->
-      name: parameters.name
+  beforeEach ->
+    container = new Container;
 
-    firstInstance = container.make 'factory',
-      name: 'firstInstance'
+  it 'bind and build', ->
+    container.bind 'Homer', (container, from) ->
+      new class Homer
+        eat: ->
+          return 'Amm...am..am from ' + from
 
-    expect(firstInstance.name).toBe('firstInstance')
 
-    secondInstance = container.make 'factory',
-      name: 'secondInstance'
+    homer = container.make 'Homer', 'plate'
 
-    expect(secondInstance.name).toBe('secondInstance')
+    expect(homer.eat).toBeDefined()
+    expect(homer.eat()).toEqual('Amm...am..am from plate')
+
 
   it 'dependency injection', ->
-    container = new Container
-
-    container.bind 'factory', (container, parameters) ->
-      dependency = container.make 'dependency',
-        name: parameters.dependencyName
-
-      getDependencyName: dependency.getName
-
-    container.bind 'dependency', (container, parameters) ->
-      getName: ->
-        parameters.name
-
-    instance = container.make 'factory',
-      dependencyName: 'dependencyName'
-
-    expect(instance.getDependencyName()).toBe('dependencyName')
 
 
   it 'dependency replacement', ->
-    container = new Container
-
-    container.bind 'factory', (container, parameters) ->
-      dependency = container.make 'dependency',
-        name: parameters.dependencyName
-
-      getDependencyName: dependency.getName
-
-    container.bind 'dependency', (container, parameters) ->
-      getName: ->
-        parameters.name
-
-    container.bind 'dependencyReplacement', (container, parameters) ->
-      getName: ->
-        parameters.name + 'Replacement'
-
-    instance = container.will()
-      .use 'dependencyReplacement'
-      .as 'dependency'
-      .make 'factory',
-        dependencyName: 'dependencyName'
-
-    expect(instance.getDependencyName()).toBe('dependencyNameReplacement')
-
-    instance = container.make 'factory',
-      dependencyName: 'dependencyName'
-
-    expect(instance.getDependencyName()).toBe('dependencyName')
-
-    container.when 'factory'
-      .needs 'dependency'
-      .give 'dependencyReplacement'
-
-    instance = container.make 'factory',
-      dependencyName: 'dependencyName'
-
-    expect(instance.getDependencyName()).toBe('dependencyNameReplacement')
