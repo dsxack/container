@@ -5,13 +5,18 @@
   "authors": [
     "Smotrov Dmitriy <dsxack@gmail.com>"
   ],
-  "main": "dist/container.js",
+  "main": [
+    "dist/container.js",
+    "dist/container.js.map"
+  ],
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
-    "test",
-    "tests"
+    "spec",
+    "gulpfile.coffee",
+    "karma.conf.js",
+    "package.json"
   ]
 }
