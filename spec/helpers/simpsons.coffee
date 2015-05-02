@@ -1,26 +1,29 @@
 class FamilyMember
+  constructor: (@container) ->
+
   getName: ->
     throw new Error "Method must be override"
 
-exports.Homer = (container) ->
-  new class Homer extends FamilyMember
-    getChild: ->
-      return container.make "Child"
+class Homer extends FamilyMember
+  getChild: ->
+    return @container.make "Child"
 
-    getName: ->
-      return "Homer Simpson"
+  getName: ->
+    return "Homer Simpson"
 
-exports.Bart = ->
-  return new class Bart extends FamilyMember
-    getName: ->
-      return "Bart Simpson"
+class Bart extends FamilyMember
+  getName: ->
+    return "Bart Simpson"
 
-exports.Lisa = ->
-  return new class Lisa extends FamilyMember
-    getName: ->
-      return "Lisa Simpson"
+class Lisa extends FamilyMember
+  getName: ->
+    return "Lisa Simpson"
 
-exports.Maggie = ->
-  return new class Maggie extends FamilyMember
-    getName: ->
-      return "Maggie Simpson"
+class Maggie extends FamilyMember
+  getName: ->
+    return "Maggie Simpson"
+
+exports.Homer = (container) -> new Homer container
+exports.Bart = (container) -> new Bart container
+exports.Lisa = (container) -> new Lisa container
+exports.Maggie = (container) -> new Maggie container

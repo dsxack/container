@@ -12,7 +12,8 @@ describe "Container", ->
 
     homer = container.make "Homer"
 
-    expect(homer.getName()).toEqual "Homer Simpson"
+    expect(homer.getName())
+    .toEqual "Homer Simpson"
 
   it "make instance with dependency injection", ->
     container.bind "Homer", Simpsons.Homer
@@ -20,7 +21,8 @@ describe "Container", ->
 
     homer = container.make "Homer"
 
-    expect(homer.getChild().getName()).toEqual "Bart Simpson"
+    expect(homer.getChild().getName())
+    .toEqual "Bart Simpson"
 
   it "make instance with dependency replacement", ->
     container.bind "Homer", Simpsons.Homer
@@ -28,7 +30,8 @@ describe "Container", ->
 
     homer = container.make "Homer"
 
-    expect(homer.getChild().getName()).toEqual "Bart Simpson"
+    expect(homer.getChild().getName())
+    .toEqual "Bart Simpson"
 
     container.bind "Lisa", Simpsons.Lisa
 
@@ -36,13 +39,15 @@ describe "Container", ->
     .needs "Child"
     .give "Lisa"
 
-    expect(homer.getChild().getName()).toEqual "Lisa Simpson"
+    expect(homer.getChild().getName())
+    .toEqual "Lisa Simpson"
 
     container.when "Homer"
     .needs "Child"
     .give Simpsons.Maggie
 
-    expect(homer.getChild().getName()).toEqual "Maggie Simpson"
+    expect(homer.getChild().getName())
+    .toEqual "Maggie Simpson"
 
-  it "instance building", ->
+  xit "instance building", ->
     # TODO
