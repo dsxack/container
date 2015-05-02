@@ -1,7 +1,8 @@
 class Container
-  constructor: ->
+  constructor: (@parentContainer) ->
     @bindings = {}
     @instances = {}
+    @contexts = {}
 
   bind: (name, factory, shared = false) ->
     @bindings[name] =
@@ -9,10 +10,10 @@ class Container
       shared: shared
 
   bound: (name) ->
-    @bindings[name]?
+    return @bindings[name]?
 
   bindShared: (name, concrete) ->
-    @bind name, concrete, true
+    @bind(name, concrete, true)
 
   instance: (name, instance) ->
     @instances[name] = instance
@@ -22,7 +23,9 @@ class Container
       return @instances[name]
 
     factory = @getFactory name
-    instance = factory(this, parameters)
+    context = @getContext name
+
+    instance = factory(context, parameters)
 
     if @isShared(name)
       @instances[name] = instance
@@ -30,19 +33,39 @@ class Container
     return instance
 
   getFactory: (name) ->
-    return @bindings[name].factory
+    if @bindings[name]?
+      factory = @bindings[name].factory
+
+      return factory if typeof factory is "function"
+
+      return @getFactory(factory) if typeof factory is "string"
+
+    return @parentContainer.getFactory name if @parentContainer?
+
+    throw new Error "Can't find factory for: #{ name }"
 
   isShared: (name) ->
-    @bindings[name].shared
+    return false if not @bindings[name]?
+    return @bindings[name].shared
 
   build: (name) ->
     # TODO
 
   when: (name) ->
-    # TODO
+    return new ContextualBindingBuilder(this, name)
+
+  addContextualBinding: (factoryName, needs, implementation) ->
+    context = @getContext factoryName
+
+    return context.bind(needs, implementation)
+
+  getContext: (name) ->
+    @contexts[name] = new Container this if not @contexts[name]?
+
+    return @contexts[name]
 
 if not exports?
-  global = this;
+  global = this
   original = global.DI
   global.DI = Container
 

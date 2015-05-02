@@ -3,6 +3,7 @@ coffee = require 'gulp-coffee'
 del = require 'del'
 print = require 'gulp-print'
 util = require 'gulp-util'
+concat = require 'gulp-concat'
 sourcemaps = require 'gulp-sourcemaps'
 
 gulp.task 'clean', (callback) ->
@@ -17,6 +18,7 @@ gulp.task 'build', ['clean'], ->
   .pipe print (path) ->
     return "source: #{ path }"
   .pipe sourcemaps.init()
+  .pipe concat('container')
   .pipe coffee().on 'error', (error) ->
     util.log error
     @emit 'end'
