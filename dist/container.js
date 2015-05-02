@@ -69,7 +69,9 @@
       return this.bindings[name].shared;
     };
 
-    Container.prototype.build = function(name) {};
+    Container.prototype.build = function(name) {
+      throw new Error("It is todo feature");
+    };
 
     Container.prototype.when = function(name) {
       return new ContextualBindingBuilder(this, name);
