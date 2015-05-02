@@ -49,7 +49,7 @@ class Container
     return @bindings[name].shared
 
   build: (name) ->
-    # TODO
+    throw new Error "It is todo feature"
 
   when: (name) ->
     return new ContextualBindingBuilder(this, name)

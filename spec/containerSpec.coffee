@@ -1,76 +1,48 @@
-Container = require '../dist/container'  if require?
-Container = window.DI if window?
+Container = require "../dist/container"
+Simpsons = require "./helpers/simpsons"
 
-describe 'Container', ->
+describe "Container", ->
   container = null
 
   beforeEach ->
-    container = new Container;
+    container = new Container
 
-  it 'make instance', ->
-    container.bind 'Homer', (container, from) ->
-      new class Homer
-        eat: ->
-          'Amm...am..am from ' + from
+  it "make instance", ->
+    container.bind "Homer", Simpsons.Homer
 
-    homer = container.make 'Homer', 'plate'
+    homer = container.make "Homer"
 
-    expect(homer.eat()).toEqual 'Amm...am..am from plate'
+    expect(homer.getName()).toEqual "Homer Simpson"
 
-  it 'make instance with dependency injection', ->
-    container.bind 'Homer', (container) ->
-      new class Homer
-        child: ->
-          container.make 'HomerChild'
+  it "make instance with dependency injection", ->
+    container.bind "Homer", Simpsons.Homer
+    container.bind "Child", Simpsons.Bart
 
-        getName: ->
-          'Homer'
+    homer = container.make "Homer"
 
-    container.bind 'HomerChild', ->
-      new class Bart
-        getName: ->
-          'Bart'
+    expect(homer.getChild().getName()).toEqual "Bart Simpson"
 
-    homer = container.make 'Homer'
+  it "make instance with dependency replacement", ->
+    container.bind "Homer", Simpsons.Homer
+    container.bind "Child", Simpsons.Bart
 
-    expect(homer.child().getName()).toEqual 'Bart'
+    homer = container.make "Homer"
 
-  it 'make instance with dependency replacement', ->
-    container.bind 'Homer', (container) ->
-      new class Homer
-        child: ->
-          container.make 'HomerChild'
+    expect(homer.getChild().getName()).toEqual "Bart Simpson"
 
-        getName: ->
-          'Homer'
+    container.bind "Lisa", Simpsons.Lisa
 
-    container.bind 'HomerChild', ->
-      new class Bart
-        getName: ->
-          'Bart'
+    container.when "Homer"
+    .needs "Child"
+    .give "Lisa"
 
-    homer = container.make 'Homer'
+    expect(homer.getChild().getName()).toEqual "Lisa Simpson"
 
-    expect(homer.child().getName()).toEqual 'Bart'
+    container.when "Homer"
+    .needs "Child"
+    .give Simpsons.Maggie
 
-    container.bind 'Lisa', ->
-      new class Lisa
-        getName: ->
-          'Lisa'
+    expect(homer.getChild().getName()).toEqual "Maggie Simpson"
 
-    container.when 'Homer'
-    .needs 'HomerChild'
-    .give 'Lisa'
-
-    expect(homer.child().getName()).toEqual 'Lisa'
-
-    container.when 'Homer'
-    .needs 'HomerChild'
-    .give ->
-      new class Maggie
-        getName: ->
-          'Maggie'
-
-    expect(homer.child().getName()).toEqual 'Maggie'
-
-  it 'instance building', ->
+  it "instance building", ->
+    # TODO
