@@ -6,13 +6,10 @@ util = require "gulp-util"
 concat = require "gulp-concat"
 sourcemaps = require "gulp-sourcemaps"
 jasmine = require "gulp-jasmine"
+p = require "path"
 
 gulp.task "clean", (callback) ->
-  del [
-    "dist/**/*"
-    "spec/**/*.js"
-    "spec/**/*.map"
-  ], callback
+  del "dist/**/*", callback
 
 gulp.task "build", ["clean"], ->
   gulp.src "src/**/*.coffee"
@@ -27,21 +24,21 @@ gulp.task "build", ["clean"], ->
     includeContent: false
     sourceRoot: "../src"
     sourceMappingURLPrefix: "./"
+  .pipe gulp.dest "dist"
   .pipe print (path) ->
     return "output: #{ path }"
-  .pipe gulp.dest "dist"
 
 gulp.task "test", ["build"], ->
   gulp.src "spec/**/*Spec.coffee"
     .pipe jasmine()
 
-gulp.task "watch", ["build", "build-tests"], ->
+gulp.task "watch", ["build", "test"], ->
   gulp.watch [
     "src/**/*.coffee"
     "spec/**/*.coffee"
   ], [
     "build"
-    "build-tests"
+    "test"
   ]
 
 gulp.task "default", ["build", "test"]
