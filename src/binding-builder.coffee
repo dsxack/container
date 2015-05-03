@@ -1,4 +1,4 @@
-class ContextualBindingBuilder
+class BindingBuilder
   constructor: (@container, @factoryName) ->
 
   needs: (@needsName) ->

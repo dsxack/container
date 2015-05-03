@@ -1,5 +1,25 @@
 (function() {
-  var Container, ContextualBindingBuilder, InstanceBuilder, global, original;
+  var BindingBuilder, Container, InstanceBuilder, global, original;
+
+  BindingBuilder = (function() {
+    function BindingBuilder(container, factoryName1) {
+      this.container = container;
+      this.factoryName = factoryName1;
+    }
+
+    BindingBuilder.prototype.needs = function(needsName) {
+      this.needsName = needsName;
+      return this;
+    };
+
+    BindingBuilder.prototype.give = function(implementation) {
+      this.container.addContextualBinding(this.factoryName, this.needsName, implementation);
+      return this;
+    };
+
+    return BindingBuilder;
+
+  })();
 
   Container = (function() {
     function Container(parentContainer) {
@@ -74,7 +94,7 @@
     };
 
     Container.prototype.when = function(name) {
-      return new ContextualBindingBuilder(this, name);
+      return new BindingBuilder(this, name);
     };
 
     Container.prototype.addContextualBinding = function(factoryName, needs, implementation) {
@@ -111,26 +131,6 @@
   if (typeof module !== "undefined" && module !== null) {
     module.exports = Container;
   }
-
-  ContextualBindingBuilder = (function() {
-    function ContextualBindingBuilder(container, factoryName1) {
-      this.container = container;
-      this.factoryName = factoryName1;
-    }
-
-    ContextualBindingBuilder.prototype.needs = function(needsName) {
-      this.needsName = needsName;
-      return this;
-    };
-
-    ContextualBindingBuilder.prototype.give = function(implementation) {
-      this.container.addContextualBinding(this.factoryName, this.needsName, implementation);
-      return this;
-    };
-
-    return ContextualBindingBuilder;
-
-  })();
 
   InstanceBuilder = (function() {
     function InstanceBuilder(parent, name1) {

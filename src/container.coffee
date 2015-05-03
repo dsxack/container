@@ -52,7 +52,7 @@ class Container
     return new InstanceBuilder(this, name)
 
   when: (name) ->
-    return new ContextualBindingBuilder(this, name)
+    return new BindingBuilder(this, name)
 
   addContextualBinding: (factoryName, needs, implementation) ->
     context = @getContext factoryName
