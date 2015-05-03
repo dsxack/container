@@ -66,11 +66,11 @@ class Container
 
 if not exports?
   global = this
-  original = global.DI
-  global.DI = Container
+  original = global.Container
+  global.Container = Container
 
   Container.noConflict = ->
-    global.DI = original
+    global.Container = original
 
     return Container
 

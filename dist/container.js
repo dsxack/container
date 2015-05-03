@@ -96,10 +96,10 @@
 
   if (typeof exports === "undefined" || exports === null) {
     global = this;
-    original = global.DI;
-    global.DI = Container;
+    original = global.Container;
+    global.Container = Container;
     Container.noConflict = function() {
-      global.DI = original;
+      global.Container = original;
       return Container;
     };
   }
