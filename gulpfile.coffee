@@ -15,8 +15,7 @@ gulp.task "clean", (callback) ->
   del "dist/**/*", callback
 
 gulp.task "build", ["clean"], ->
-  gulp.src "src/**/*.coffee",
-    base: p.join __dirname, "src"
+  gulp.src "src/**/*.coffee"
   .pipe print (path) -> "source: #{ path }"
   .pipe sourcemaps.init()
   .pipe concat("container")
