@@ -65,3 +65,20 @@ describe "Container", ->
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
+
+  it "many dependency replacements", ->
+    container.bind "Homer", Simpsons.Homer
+
+    container.when "Homer"
+    .needs "Child"
+    .give Simpsons.Bart
+    .needs "Wife"
+    .give Simpsons.Marge
+
+    homer = container.make "Homer"
+
+    expect(homer.getChild().getName())
+    .toEqual "Bart Simpson"
+
+    expect(homer.getWife().getName())
+    .toEqual "Marge Simpson"

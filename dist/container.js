@@ -118,13 +118,13 @@
       this.factoryName = factoryName1;
     }
 
-    ContextualBindingBuilder.prototype.needs = function(needs1) {
-      this.needs = needs1;
+    ContextualBindingBuilder.prototype.needs = function(needsName) {
+      this.needsName = needsName;
       return this;
     };
 
     ContextualBindingBuilder.prototype.give = function(implementation) {
-      this.container.addContextualBinding(this.factoryName, this.needs, implementation);
+      this.container.addContextualBinding(this.factoryName, this.needsName, implementation);
       return this;
     };
 
@@ -138,13 +138,13 @@
       this.container = new Container(parent);
     }
 
-    InstanceBuilder.prototype.needs = function(needs1) {
-      this.needs = needs1;
+    InstanceBuilder.prototype.needs = function(needsName) {
+      this.needsName = needsName;
       return this;
     };
 
     InstanceBuilder.prototype.give = function(implementation) {
-      this.container.addContextualBinding(this.name, this.needs, implementation);
+      this.container.addContextualBinding(this.name, this.needsName, implementation);
       return this;
     };
 
