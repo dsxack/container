@@ -40,8 +40,9 @@ gulp.task "build", ["clean"], ->
   .pipe print (path) -> "output: #{ path }"
 
 gulp.task "test", ["build"], ->
-  gulp.src "spec/**/*Spec.coffee"
-    .pipe jasmine()
+  gulp.src "spec/**/*[sS]pec.coffee"
+  .pipe print (path) -> "spec: #{ path }"
+  .pipe jasmine()
 
 gulp.task "watch", ["build", "test"], ->
   gulp.watch [
