@@ -49,5 +49,19 @@ describe "Container", ->
     expect(homer.getChild().getName())
     .toEqual "Maggie Simpson"
 
-  xit "instance building", ->
-    # TODO
+  it "instance building", ->
+    container.bind "Homer", Simpsons.Homer
+    container.bind "Child", Simpsons.Bart
+
+    homer = container.build "Homer"
+    .needs "Child"
+    .give Simpsons.Lisa
+    .make()
+
+    expect(homer.getChild().getName())
+    .toEqual "Lisa Simpson"
+
+    homer = container.make "Homer"
+
+    expect(homer.getChild().getName())
+    .toEqual "Bart Simpson"

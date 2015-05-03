@@ -1,5 +1,5 @@
 (function() {
-  var Container, ContextualBindingBuilder, global, original;
+  var Container, ContextualBindingBuilder, InstanceBuilder, global, original;
 
   Container = (function() {
     function Container(parentContainer) {
@@ -70,7 +70,7 @@
     };
 
     Container.prototype.build = function(name) {
-      throw new Error("It is todo feature");
+      return new InstanceBuilder(this, name);
     };
 
     Container.prototype.when = function(name) {
@@ -129,6 +129,30 @@
     };
 
     return ContextualBindingBuilder;
+
+  })();
+
+  InstanceBuilder = (function() {
+    function InstanceBuilder(parent, name1) {
+      this.name = name1;
+      this.container = new Container(parent);
+    }
+
+    InstanceBuilder.prototype.needs = function(needs1) {
+      this.needs = needs1;
+      return this;
+    };
+
+    InstanceBuilder.prototype.give = function(implementation) {
+      this.container.addContextualBinding(this.name, this.needs, implementation);
+      return this;
+    };
+
+    InstanceBuilder.prototype.make = function(parameters) {
+      return this.container.make(this.name, parameters);
+    };
+
+    return InstanceBuilder;
 
   })();
 
