@@ -6,15 +6,18 @@ util = require "gulp-util"
 concat = require "gulp-concat"
 sourcemaps = require "gulp-sourcemaps"
 jasmine = require "gulp-jasmine"
+uglify = require "gulp-uglify"
+rename = require "gulp-rename"
 p = require "path"
+filter = require "gulp-filter"
 
 gulp.task "clean", (callback) ->
   del "dist/**/*", callback
 
 gulp.task "build", ["clean"], ->
-  gulp.src "src/**/*.coffee"
-  .pipe print (path) ->
-    return "source: #{ path }"
+  gulp.src "src/**/*.coffee",
+    base: p.join __dirname, "src"
+  .pipe print (path) -> "source: #{ path }"
   .pipe sourcemaps.init()
   .pipe concat("container")
   .pipe coffee().on "error", (error) ->
@@ -25,8 +28,17 @@ gulp.task "build", ["clean"], ->
     sourceRoot: "../src"
     sourceMappingURLPrefix: "./"
   .pipe gulp.dest "dist"
-  .pipe print (path) ->
-    return "output: #{ path }"
+  .pipe print (path) -> "output: #{ path }"
+  .pipe filter "*.js"
+  .pipe sourcemaps.init()
+  .pipe uglify()
+  .pipe rename extname: ".min.js"
+  .pipe sourcemaps.write "./",
+    includeContent: false
+    sourceRoot: "./"
+    sourceMappingURLPrefix: "./"
+  .pipe gulp.dest "dist"
+  .pipe print (path) -> "output: #{ path }"
 
 gulp.task "test", ["build"], ->
   gulp.src "spec/**/*Spec.coffee"
