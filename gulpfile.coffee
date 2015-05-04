@@ -10,9 +10,16 @@ uglify = require "gulp-uglify"
 rename = require "gulp-rename"
 p = require "path"
 filter = require "gulp-filter"
+magenta = require("colors").magenta
 
 gulp.task "clean", (callback) ->
-  del "dist/**/*", callback
+  del "dist/**/*", (err, files) ->
+    for file in files
+      filepath = p.relative process.cwd(), file
+      formatted = magenta(filepath)
+      print.log "delete: #{ formatted }"
+
+    callback()
 
 gulp.task "build", ["clean"], ->
   gulp.src "src/**/*.coffee"
