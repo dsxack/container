@@ -64,6 +64,11 @@ class Container
 
     return @contexts[name]
 
+  global: ->
+    return @parentContainer.global() if @parentContainer?
+
+    return this
+
 if not exports?
   global = this
   original = global.Container

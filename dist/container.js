@@ -110,6 +110,13 @@
       return this.contexts[name];
     };
 
+    Container.prototype.global = function() {
+      if (this.parentContainer != null) {
+        return this.parentContainer.global();
+      }
+      return this;
+    };
+
     return Container;
 
   })();

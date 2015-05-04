@@ -49,7 +49,7 @@ describe "Container", ->
     expect(homer.getChild().getName())
     .toEqual "Maggie Simpson"
 
-  it "instance building", ->
+  it "build concrete instance with dependency replacement", ->
     container.bind "Homer", Simpsons.Homer
     container.bind "Child", Simpsons.Bart
 
@@ -66,7 +66,7 @@ describe "Container", ->
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
 
-  it "many dependency replacements", ->
+  it "make instance with many dependency replacements", ->
     container.bind "Homer", Simpsons.Homer
 
     container.when "Homer"
@@ -82,3 +82,17 @@ describe "Container", ->
 
     expect(homer.getWife().getName())
     .toEqual "Marge Simpson"
+
+  it "configure container from factory", ->
+    container.bind "Configure", (container) ->
+      container.global().bind "Homer", Simpsons.Homer
+
+      return true
+
+    expect(container.make "Configure")
+    .toBeTruthy()
+
+    homer = container.make "Homer"
+
+    expect(homer.getName())
+    .toEqual "Homer Simpson"
