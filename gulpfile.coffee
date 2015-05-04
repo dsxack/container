@@ -8,18 +8,13 @@ sourcemaps = require "gulp-sourcemaps"
 jasmine = require "gulp-jasmine"
 uglify = require "gulp-uglify"
 rename = require "gulp-rename"
-p = require "path"
 filter = require "gulp-filter"
-magenta = require("colors").magenta
+vinylPaths = require "vinyl-paths"
 
-gulp.task "clean", (callback) ->
-  del "dist/**/*", (err, files) ->
-    for file in files
-      filepath = p.relative process.cwd(), file
-      formatted = magenta(filepath)
-      print.log "delete: #{ formatted }"
-
-    callback()
+gulp.task "clean", ->
+  gulp.src "dist/**/*"
+    .pipe vinylPaths del
+    .pipe print (path) -> "delete: #{ path }"
 
 gulp.task "build", ["clean"], ->
   gulp.src "src/**/*.coffee"
