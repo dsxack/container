@@ -2,9 +2,9 @@
   var BindingBuilder, Container, InstanceBuilder, global, original;
 
   BindingBuilder = (function() {
-    function BindingBuilder(container, factoryName1) {
+    function BindingBuilder(container, factoryName) {
       this.container = container;
-      this.factoryName = factoryName1;
+      this.factoryName = factoryName;
     }
 
     BindingBuilder.prototype.needs = function(needsName) {
@@ -34,7 +34,7 @@
     };
 
     Container.prototype.sharedFactory = function(name, factory) {
-      return this.bindShared(name, factory);
+      return this.bind(name, factory, true);
     };
 
     Container.prototype.alias = function(name, alias) {
@@ -61,10 +61,6 @@
       return false;
     };
 
-    Container.prototype.bindShared = function(name, concrete) {
-      return this.bind(name, concrete, true);
-    };
-
     Container.prototype.set = function(name, instance) {
       return this.instances[name] = instance;
     };
@@ -75,7 +71,7 @@
         return this.instances[name];
       }
       factory = this.getFactory(name);
-      context = this.getFactoryContextContainer(name);
+      context = this.getContextContainer(name);
       instance = factory(context, parameters);
       if (this.isShared(name)) {
         this.instances[name] = instance;
@@ -105,6 +101,9 @@
     };
 
     Container.prototype.isShared = function(name) {
+      if (this.instances[name] != null) {
+        return true;
+      }
       return this.getConcrete(name).shared;
     };
 
@@ -116,13 +115,13 @@
       return new BindingBuilder(this, name);
     };
 
-    Container.prototype.addContextualBinding = function(factoryName, needs, implementation) {
+    Container.prototype.addContextualBinding = function(name, needs, concrete) {
       var context;
-      context = this.getFactoryContextContainer(factoryName);
-      return context.bind(needs, implementation);
+      context = this.getContextContainer(name);
+      return context.bind(needs, concrete);
     };
 
-    Container.prototype.getFactoryContextContainer = function(name) {
+    Container.prototype.getContextContainer = function(name) {
       if (this.contexts[name] == null) {
         this.contexts[name] = new Container(this);
       }

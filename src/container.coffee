@@ -8,7 +8,7 @@ class Container
     @bind name, factory
 
   sharedFactory: (name, factory) ->
-    @bindShared name, factory
+    @bind name, factory, true
 
   alias: (name, alias) ->
     @bind alias, name
@@ -25,9 +25,6 @@ class Container
 
     return false
 
-  bindShared: (name, concrete) ->
-    @bind name, concrete, true
-
   set: (name, instance) ->
     @instances[name] = instance
 
@@ -36,7 +33,7 @@ class Container
       return @instances[name]
 
     factory = @getFactory name
-    context = @getFactoryContextContainer name
+    context = @getContextContainer name
 
     instance = factory(context, parameters)
 
@@ -61,6 +58,8 @@ class Container
     return @getConcrete name
 
   isShared: (name) ->
+    return true if @instances[name]?
+
     return @getConcrete(name).shared
 
   build: (name) ->
@@ -69,12 +68,12 @@ class Container
   when: (name) ->
     return new BindingBuilder(this, name)
 
-  addContextualBinding: (factoryName, needs, implementation) ->
-    context = @getFactoryContextContainer factoryName
+  addContextualBinding: (name, needs, concrete) ->
+    context = @getContextContainer name
 
-    return context.bind(needs, implementation)
+    return context.bind(needs, concrete)
 
-  getFactoryContextContainer: (name) ->
+  getContextContainer: (name) ->
     @contexts[name] = new Container this if not @contexts[name]?
 
     return @contexts[name]
