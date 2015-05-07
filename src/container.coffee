@@ -4,26 +4,39 @@ class Container
     @instances = {}
     @contexts = {}
 
-  bind: (name, factory, shared = false) ->
+  factory: (name, factory) ->
+    @bind name, factory
+
+  sharedFactory: (name, factory) ->
+    @bindShared name, factory
+
+  alias: (name, alias) ->
+    @bind alias, name
+
+  bind: (name, concrete, shared = false) ->
     @bindings[name] =
-      factory: factory
+      concrete: concrete
       shared: shared
 
   bound: (name) ->
-    return @bindings[name]?
+    return true if @bindings[name]?
+
+    return @parentContainer.bound name if @parentContainer?
+
+    return false
 
   bindShared: (name, concrete) ->
-    @bind(name, concrete, true)
+    @bind name, concrete, true
 
-  instance: (name, instance) ->
+  set: (name, instance) ->
     @instances[name] = instance
 
-  make: (name, parameters) ->
+  get: (name, parameters) ->
     if @instances[name]
       return @instances[name]
 
     factory = @getFactory name
-    context = @getContext name
+    context = @getFactoryContextContainer name
 
     instance = factory(context, parameters)
 
@@ -32,21 +45,23 @@ class Container
 
     return instance
 
+  isAlias: (name) ->
+    return typeof @getConcrete(name) is "string"
+
+  getConcrete: (name) ->
+    return @bindings[name].concrete if @bindings[name]?
+
+    return @parentContainer.getConcrete(name) if @parentContainer
+
+    throw new Error "Is not set concrete for: #{ name }"
+
   getFactory: (name) ->
-    if @bindings[name]?
-      factory = @bindings[name].factory
+    name = @getConcrete name if @isAlias name
 
-      return factory if typeof factory is "function"
-
-      return @getFactory(factory) if typeof factory is "string"
-
-    return @parentContainer.getFactory name if @parentContainer?
-
-    throw new Error "Can't find factory for: #{ name }"
+    return @getConcrete name
 
   isShared: (name) ->
-    return false if not @bindings[name]?
-    return @bindings[name].shared
+    return @getConcrete(name).shared
 
   build: (name) ->
     return new InstanceBuilder(this, name)
@@ -55,11 +70,11 @@ class Container
     return new BindingBuilder(this, name)
 
   addContextualBinding: (factoryName, needs, implementation) ->
-    context = @getContext factoryName
+    context = @getFactoryContextContainer factoryName
 
     return context.bind(needs, implementation)
 
-  getContext: (name) ->
+  getFactoryContextContainer: (name) ->
     @contexts[name] = new Container this if not @contexts[name]?
 
     return @contexts[name]

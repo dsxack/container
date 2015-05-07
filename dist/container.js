@@ -29,35 +29,53 @@
       this.contexts = {};
     }
 
-    Container.prototype.bind = function(name, factory, shared) {
+    Container.prototype.factory = function(name, factory) {
+      return this.bind(name, factory);
+    };
+
+    Container.prototype.sharedFactory = function(name, factory) {
+      return this.bindShared(name, factory);
+    };
+
+    Container.prototype.alias = function(name, alias) {
+      return this.bind(alias, name);
+    };
+
+    Container.prototype.bind = function(name, concrete, shared) {
       if (shared == null) {
         shared = false;
       }
       return this.bindings[name] = {
-        factory: factory,
+        concrete: concrete,
         shared: shared
       };
     };
 
     Container.prototype.bound = function(name) {
-      return this.bindings[name] != null;
+      if (this.bindings[name] != null) {
+        return true;
+      }
+      if (this.parentContainer != null) {
+        return this.parentContainer.bound(name);
+      }
+      return false;
     };
 
     Container.prototype.bindShared = function(name, concrete) {
       return this.bind(name, concrete, true);
     };
 
-    Container.prototype.instance = function(name, instance) {
+    Container.prototype.set = function(name, instance) {
       return this.instances[name] = instance;
     };
 
-    Container.prototype.make = function(name, parameters) {
+    Container.prototype.get = function(name, parameters) {
       var context, factory, instance;
       if (this.instances[name]) {
         return this.instances[name];
       }
       factory = this.getFactory(name);
-      context = this.getContext(name);
+      context = this.getFactoryContextContainer(name);
       instance = factory(context, parameters);
       if (this.isShared(name)) {
         this.instances[name] = instance;
@@ -65,28 +83,29 @@
       return instance;
     };
 
-    Container.prototype.getFactory = function(name) {
-      var factory;
+    Container.prototype.isAlias = function(name) {
+      return typeof this.getConcrete(name) === "string";
+    };
+
+    Container.prototype.getConcrete = function(name) {
       if (this.bindings[name] != null) {
-        factory = this.bindings[name].factory;
-        if (typeof factory === "function") {
-          return factory;
-        }
-        if (typeof factory === "string") {
-          return this.getFactory(factory);
-        }
+        return this.bindings[name].concrete;
       }
-      if (this.parentContainer != null) {
-        return this.parentContainer.getFactory(name);
+      if (this.parentContainer) {
+        return this.parentContainer.getConcrete(name);
       }
-      throw new Error("Can't find factory for: " + name);
+      throw new Error("Is not set concrete for: " + name);
+    };
+
+    Container.prototype.getFactory = function(name) {
+      if (this.isAlias(name)) {
+        name = this.getConcrete(name);
+      }
+      return this.getConcrete(name);
     };
 
     Container.prototype.isShared = function(name) {
-      if (this.bindings[name] == null) {
-        return false;
-      }
-      return this.bindings[name].shared;
+      return this.getConcrete(name).shared;
     };
 
     Container.prototype.build = function(name) {
@@ -99,11 +118,11 @@
 
     Container.prototype.addContextualBinding = function(factoryName, needs, implementation) {
       var context;
-      context = this.getContext(factoryName);
+      context = this.getFactoryContextContainer(factoryName);
       return context.bind(needs, implementation);
     };
 
-    Container.prototype.getContext = function(name) {
+    Container.prototype.getFactoryContextContainer = function(name) {
       if (this.contexts[name] == null) {
         this.contexts[name] = new Container(this);
       }
@@ -155,8 +174,8 @@
       return this;
     };
 
-    InstanceBuilder.prototype.make = function(parameters) {
-      return this.container.make(this.name, parameters);
+    InstanceBuilder.prototype.get = function(parameters) {
+      return this.container.get(this.name, parameters);
     };
 
     return InstanceBuilder;

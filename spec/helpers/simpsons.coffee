@@ -6,10 +6,10 @@ class FamilyMember
 
 class Homer extends FamilyMember
   getChild: ->
-    return @container.make "Child"
+    return @container.get "Child"
 
   getWife: ->
-    return @container.make "Wife"
+    return @container.get "Wife"
 
   getName: ->
     return "Homer Simpson"

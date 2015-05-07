@@ -7,28 +7,28 @@ describe "Container", ->
   beforeEach ->
     container = new Container
 
-  it "make instance", ->
+  it "get instance", ->
     container.bind "Homer", Simpsons.Homer
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getName())
     .toEqual "Homer Simpson"
 
-  it "make instance with dependency injection", ->
+  it "get instance with dependency injection", ->
     container.bind "Homer", Simpsons.Homer
     container.bind "Child", Simpsons.Bart
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
 
-  it "make instance with dependency replacement", ->
+  it "get instance with dependency replacement", ->
     container.bind "Homer", Simpsons.Homer
     container.bind "Child", Simpsons.Bart
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
@@ -56,17 +56,17 @@ describe "Container", ->
     homer = container.build "Homer"
     .needs "Child"
     .give Simpsons.Lisa
-    .make()
+    .get()
 
     expect(homer.getChild().getName())
     .toEqual "Lisa Simpson"
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
 
-  it "make instance with many dependency replacements", ->
+  it "get instance with many dependency replacements", ->
     container.bind "Homer", Simpsons.Homer
 
     container.when "Homer"
@@ -75,7 +75,7 @@ describe "Container", ->
     .needs "Wife"
     .give Simpsons.Marge
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
@@ -89,10 +89,10 @@ describe "Container", ->
 
       return true
 
-    expect(container.make "Configure")
+    expect(container.get "Configure")
     .toBeTruthy()
 
-    homer = container.make "Homer"
+    homer = container.get "Homer"
 
     expect(homer.getName())
     .toEqual "Homer Simpson"

@@ -10,5 +10,5 @@ class InstanceBuilder
 
     return this;
 
-  make: (parameters) ->
-    return @container.make(@name, parameters)
+  get: (parameters) ->
+    return @container.get(@name, parameters)
