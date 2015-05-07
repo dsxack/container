@@ -1,6 +1,5 @@
 {
   "name": "container",
-  "version": "1.0.0",
   "homepage": "https://github.com/DsXack/container",
   "authors": [
     "Smotrov Dmitriy <dsxack@gmail.com>"
@@ -17,8 +16,8 @@
     "node_modules",
     "bower_components",
     "spec",
+    "src",
     "gulpfile.coffee",
-    "karma.conf.js",
     "package.json"
   ]
 }
