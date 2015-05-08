@@ -8,7 +8,7 @@ describe "Container", ->
     container = new Container
 
   it "get instance", ->
-    container.bind "Homer", Simpsons.Homer
+    container.factory "Homer", Simpsons.Homer
 
     homer = container.get "Homer"
 
@@ -16,8 +16,8 @@ describe "Container", ->
     .toEqual "Homer Simpson"
 
   it "get instance with dependency injection", ->
-    container.bind "Homer", Simpsons.Homer
-    container.bind "Child", Simpsons.Bart
+    container.factory "Homer", Simpsons.Homer
+    container.factory "Child", Simpsons.Bart
 
     homer = container.get "Homer"
 
@@ -25,15 +25,15 @@ describe "Container", ->
     .toEqual "Bart Simpson"
 
   it "get instance with dependency replacement", ->
-    container.bind "Homer", Simpsons.Homer
-    container.bind "Child", Simpsons.Bart
+    container.factory "Homer", Simpsons.Homer
+    container.factory "Child", Simpsons.Bart
 
     homer = container.get "Homer"
 
     expect(homer.getChild().getName())
     .toEqual "Bart Simpson"
 
-    container.bind "Lisa", Simpsons.Lisa
+    container.factory "Lisa", Simpsons.Lisa
 
     container.when "Homer"
     .needs "Child"
@@ -50,8 +50,8 @@ describe "Container", ->
     .toEqual "Maggie Simpson"
 
   it "build concrete instance with dependency replacement", ->
-    container.bind "Homer", Simpsons.Homer
-    container.bind "Child", Simpsons.Bart
+    container.factory "Homer", Simpsons.Homer
+    container.factory "Child", Simpsons.Bart
 
     homer = container.build "Homer"
     .needs "Child"
@@ -67,7 +67,7 @@ describe "Container", ->
     .toEqual "Bart Simpson"
 
   it "get instance with many dependency replacements", ->
-    container.bind "Homer", Simpsons.Homer
+    container.factory "Homer", Simpsons.Homer
 
     container.when "Homer"
     .needs "Child"
@@ -84,8 +84,8 @@ describe "Container", ->
     .toEqual "Marge Simpson"
 
   it "configure container from factory", ->
-    container.bind "Configure", (container) ->
-      container.global().bind "Homer", Simpsons.Homer
+    container.factory "Configure", (container) ->
+      container.global().factory "Homer", Simpsons.Homer
 
       return true
 
@@ -96,3 +96,17 @@ describe "Container", ->
 
     expect(homer.getName())
     .toEqual "Homer Simpson"
+
+  it "make shared instance", ->
+    container.sharedFactory "Homer", Simpsons.Homer
+    container.alias "Homer", "AnotherHomer"
+
+    homer = container.get "Homer"
+
+    expect(homer.getName())
+    .toEqual "Homer Simpson"
+
+    container.get("AnotherHomer").getName = -> "I am is shared Homer"
+
+    expect(homer.getName())
+    .toEqual "I am is shared Homer"
