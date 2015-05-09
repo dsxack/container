@@ -2,11 +2,11 @@ class InstanceBuilder
   constructor: (parent, @name) ->
     @container = new Container(parent)
 
-  needs: (@needsName) ->
+  needs: (@dependency) ->
     return this
 
   give: (implementation) ->
-    @container.addContextualBinding(@name, @needsName, implementation)
+    @container.addContextualBinding @name, @dependency, implementation
 
     return this;
 

@@ -1,10 +1,10 @@
 class BindingBuilder
-  constructor: (@container, @factoryName) ->
+  constructor: (@container, @name) ->
 
-  needs: (@needsName) ->
+  needs: (@dependency) ->
     return this
 
   give: (implementation) ->
-    @container.addContextualBinding @factoryName, @needsName, implementation
+    @container.addContextualBinding @name, @dependency, implementation
 
     return this

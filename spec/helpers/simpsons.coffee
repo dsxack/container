@@ -5,6 +5,9 @@ class FamilyMember
     throw new Error "Method must be override"
 
 class Homer extends FamilyMember
+  constructor: (@container) ->
+    @name = "Homer Simpson"
+
   getChild: ->
     return @container.get "Child"
 
@@ -12,7 +15,10 @@ class Homer extends FamilyMember
     return @container.get "Wife"
 
   getName: ->
-    return "Homer Simpson"
+    return @name
+
+  setName: (name) ->
+    @name = name
 
 class Bart extends FamilyMember
   getName: ->

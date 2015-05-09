@@ -1,85 +1,90 @@
 class Container
-  constructor: (@parentContainer) ->
-    @bindings = {}
+  constructor: (@parent = null) ->
+    @factories = {}
+    @shared = {}
     @instances = {}
-    @contexts = {}
+    @aliases = {}
+    @factoryContextes = {}
 
   factory: (name, factory) ->
-    @bind name, factory
+    @factories[name] = factory
 
   sharedFactory: (name, factory) ->
-    @bind name, factory, true
+    @factory name, factory
+    @setShared name, true
 
   alias: (name, alias) ->
-    @bind alias, name
+    @aliases[name] = alias
 
-  bind: (name, concrete, shared = false) ->
-    @bindings[name] =
-      concrete: concrete
-      shared: shared
+  setShared: (name, shared) ->
+    name = @resolveAlias name
 
-  bound: (name) ->
-    return true if @bindings[name]?
+    @shared[name] = shared
 
-    return @parentContainer.bound name if @parentContainer?
+  resolveAlias: (name) ->
+    return @aliases[name] if @aliases[name]?
 
-    return false
+    return name
 
   set: (name, instance) ->
     @instances[name] = instance
 
   get: (name, parameters) ->
-    if @instances[name]
-      return @instances[name]
+    name = @resolveAlias name
+
+    return @instances[name] if @instances[name]?
 
     factory = @getFactory name
-    context = @getContextContainer name
+    factoryContext = @resolveFactoryContext name
+    instance = factory factoryContext, parameters
 
-    instance = factory(context, parameters)
-
-    if @isShared(name)
-      @instances[name] = instance
+    @instances[name] = instance if @shared[name]
 
     return instance
 
-  isAlias: (name) ->
-    return typeof @getConcrete(name) is "string"
-
-  getConcrete: (name) ->
-    return @bindings[name].concrete if @bindings[name]?
-
-    return @parentContainer.getConcrete(name) if @parentContainer
-
-    throw new Error "Is not set concrete for: #{ name }"
-
   getFactory: (name) ->
-    name = @getConcrete name if @isAlias name
+    name = @resolveAlias name
 
-    return @getConcrete name
+    return @factories[name] if @factories[name]?
 
-  isShared: (name) ->
-    return true if @instances[name]?
+    return @parent.getFactory name if @parent?
 
-    return @getConcrete(name).shared
+    throw "Factory with name '#{ name }' isnt set"
+
+  unsetFactory: (name) ->
+    delete @factories[name] if @factories[name]?
+
+    @parent.unsetFactory name if @parent?
+
+  unAlias: (name) ->
+    delete @aliases[name]
+
+    @parent.unAlias name if @parent?
 
   build: (name) ->
-    return new InstanceBuilder(this, name)
+    return new InstanceBuilder this, name
 
   when: (name) ->
-    return new BindingBuilder(this, name)
+    return new BindingBuilder this, name
 
-  addContextualBinding: (name, needs, concrete) ->
-    context = @getContextContainer name
+  addContextualBinding: (name, dependency, implementation) ->
+    contextContainer = @resolveFactoryContext name
 
-    return context.bind(needs, concrete)
+    if typeof implementation is "string"
+      contextContainer.unsetFactory dependency
+      contextContainer.alias dependency, implementation
 
-  getContextContainer: (name) ->
-    @contexts[name] = new Container this if not @contexts[name]?
+    if typeof implementation isnt "string"
+      contextContainer.unAlias dependency
+      contextContainer.factory dependency, implementation
 
-    return @contexts[name]
+  resolveFactoryContext: (name) ->
+    @factoryContextes[name] = new Container this if not @factoryContextes[name]?
+
+    return @factoryContextes[name]
 
   global: ->
-    return @parentContainer.global() if @parentContainer?
+    return @parent.global() if @parent?
 
     return this
 

@@ -2,18 +2,18 @@
   var BindingBuilder, Container, InstanceBuilder, global, original;
 
   BindingBuilder = (function() {
-    function BindingBuilder(container, factoryName) {
+    function BindingBuilder(container, name1) {
       this.container = container;
-      this.factoryName = factoryName;
+      this.name = name1;
     }
 
-    BindingBuilder.prototype.needs = function(needsName) {
-      this.needsName = needsName;
+    BindingBuilder.prototype.needs = function(dependency1) {
+      this.dependency = dependency1;
       return this;
     };
 
     BindingBuilder.prototype.give = function(implementation) {
-      this.container.addContextualBinding(this.factoryName, this.needsName, implementation);
+      this.container.addContextualBinding(this.name, this.dependency, implementation);
       return this;
     };
 
@@ -22,43 +22,38 @@
   })();
 
   Container = (function() {
-    function Container(parentContainer) {
-      this.parentContainer = parentContainer;
-      this.bindings = {};
+    function Container(parent1) {
+      this.parent = parent1 != null ? parent1 : null;
+      this.factories = {};
+      this.shared = {};
       this.instances = {};
-      this.contexts = {};
+      this.aliases = {};
+      this.factoryContextes = {};
     }
 
     Container.prototype.factory = function(name, factory) {
-      return this.bind(name, factory);
+      return this.factories[name] = factory;
     };
 
     Container.prototype.sharedFactory = function(name, factory) {
-      return this.bind(name, factory, true);
+      this.factory(name, factory);
+      return this.setShared(name, true);
     };
 
     Container.prototype.alias = function(name, alias) {
-      return this.bind(alias, name);
+      return this.aliases[name] = alias;
     };
 
-    Container.prototype.bind = function(name, concrete, shared) {
-      if (shared == null) {
-        shared = false;
-      }
-      return this.bindings[name] = {
-        concrete: concrete,
-        shared: shared
-      };
+    Container.prototype.setShared = function(name, shared) {
+      name = this.resolveAlias(name);
+      return this.shared[name] = shared;
     };
 
-    Container.prototype.bound = function(name) {
-      if (this.bindings[name] != null) {
-        return true;
+    Container.prototype.resolveAlias = function(name) {
+      if (this.aliases[name] != null) {
+        return this.aliases[name];
       }
-      if (this.parentContainer != null) {
-        return this.parentContainer.bound(name);
-      }
-      return false;
+      return name;
     };
 
     Container.prototype.set = function(name, instance) {
@@ -66,45 +61,45 @@
     };
 
     Container.prototype.get = function(name, parameters) {
-      var context, factory, instance;
-      if (this.instances[name]) {
+      var factory, factoryContext, instance;
+      name = this.resolveAlias(name);
+      if (this.instances[name] != null) {
         return this.instances[name];
       }
       factory = this.getFactory(name);
-      context = this.getContextContainer(name);
-      instance = factory(context, parameters);
-      if (this.isShared(name)) {
+      factoryContext = this.resolveFactoryContext(name);
+      instance = factory(factoryContext, parameters);
+      if (this.shared[name]) {
         this.instances[name] = instance;
       }
       return instance;
     };
 
-    Container.prototype.isAlias = function(name) {
-      return typeof this.getConcrete(name) === "string";
-    };
-
-    Container.prototype.getConcrete = function(name) {
-      if (this.bindings[name] != null) {
-        return this.bindings[name].concrete;
-      }
-      if (this.parentContainer) {
-        return this.parentContainer.getConcrete(name);
-      }
-      throw new Error("Is not set concrete for: " + name);
-    };
-
     Container.prototype.getFactory = function(name) {
-      if (this.isAlias(name)) {
-        name = this.getConcrete(name);
+      name = this.resolveAlias(name);
+      if (this.factories[name] != null) {
+        return this.factories[name];
       }
-      return this.getConcrete(name);
+      if (this.parent != null) {
+        return this.parent.getFactory(name);
+      }
+      throw "Factory with name '" + name + "' isnt set";
     };
 
-    Container.prototype.isShared = function(name) {
-      if (this.instances[name] != null) {
-        return true;
+    Container.prototype.unsetFactory = function(name) {
+      if (this.factories[name] != null) {
+        delete this.factories[name];
       }
-      return this.getConcrete(name).shared;
+      if (this.parent != null) {
+        return this.parent.unsetFactory(name);
+      }
+    };
+
+    Container.prototype.unAlias = function(name) {
+      delete this.aliases[name];
+      if (this.parent != null) {
+        return this.parent.unAlias(name);
+      }
     };
 
     Container.prototype.build = function(name) {
@@ -115,22 +110,29 @@
       return new BindingBuilder(this, name);
     };
 
-    Container.prototype.addContextualBinding = function(name, needs, concrete) {
-      var context;
-      context = this.getContextContainer(name);
-      return context.bind(needs, concrete);
+    Container.prototype.addContextualBinding = function(name, dependency, implementation) {
+      var contextContainer;
+      contextContainer = this.resolveFactoryContext(name);
+      if (typeof implementation === "string") {
+        contextContainer.unsetFactory(dependency);
+        contextContainer.alias(dependency, implementation);
+      }
+      if (typeof implementation !== "string") {
+        contextContainer.unAlias(dependency);
+        return contextContainer.factory(dependency, implementation);
+      }
     };
 
-    Container.prototype.getContextContainer = function(name) {
-      if (this.contexts[name] == null) {
-        this.contexts[name] = new Container(this);
+    Container.prototype.resolveFactoryContext = function(name) {
+      if (this.factoryContextes[name] == null) {
+        this.factoryContextes[name] = new Container(this);
       }
-      return this.contexts[name];
+      return this.factoryContextes[name];
     };
 
     Container.prototype.global = function() {
-      if (this.parentContainer != null) {
-        return this.parentContainer.global();
+      if (this.parent != null) {
+        return this.parent.global();
       }
       return this;
     };
@@ -163,13 +165,13 @@
       this.container = new Container(parent);
     }
 
-    InstanceBuilder.prototype.needs = function(needsName) {
-      this.needsName = needsName;
+    InstanceBuilder.prototype.needs = function(dependency1) {
+      this.dependency = dependency1;
       return this;
     };
 
     InstanceBuilder.prototype.give = function(implementation) {
-      this.container.addContextualBinding(this.name, this.needsName, implementation);
+      this.container.addContextualBinding(this.name, this.dependency, implementation);
       return this;
     };
 

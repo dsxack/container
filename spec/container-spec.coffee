@@ -15,6 +15,7 @@ describe "Container", ->
     expect(homer.getName())
     .toEqual "Homer Simpson"
 
+
   it "get instance with dependency injection", ->
     container.factory "Homer", Simpsons.Homer
     container.factory "Child", Simpsons.Bart
@@ -99,14 +100,19 @@ describe "Container", ->
 
   it "make shared instance", ->
     container.sharedFactory "Homer", Simpsons.Homer
-    container.alias "Homer", "AnotherHomer"
+    container.alias "AnotherHomer", "Homer"
 
     homer = container.get "Homer"
 
     expect(homer.getName())
     .toEqual "Homer Simpson"
 
-    container.get("AnotherHomer").getName = -> "I am is shared Homer"
+    homer.setName "I am is shared Homer"
 
     expect(homer.getName())
     .toEqual "I am is shared Homer"
+
+    container.get("AnotherHomer").setName "I am is shared AnotherHomer"
+
+    expect(homer.getName())
+    .toEqual "I am is shared AnotherHomer"
