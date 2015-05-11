@@ -5,8 +5,6 @@
     "Smotrov Dmitriy <dsxack@gmail.com>"
   ],
   "main": [
-    "dist/container.js",
-    "dist/container.js.map",
     "dist/container.min.js",
     "dist/container.min.js.map"
   ],
