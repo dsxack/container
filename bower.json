@@ -5,8 +5,7 @@
     "Smotrov Dmitriy <dsxack@gmail.com>"
   ],
   "main": [
-    "dist/container.min.js",
-    "dist/container.min.js.map"
+    "dist/container.js"
   ],
   "license": "MIT",
   "ignore": [
