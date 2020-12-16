@@ -26,7 +26,7 @@
     "gulp-util": "^3.0.4",
     "jasmine": "^2.2.1",
     "jasmine-core": "^3.6.0",
-    "vinyl-paths": "^1.0.0"
+    "vinyl-paths": "^3.0.1"
   },
   "repository": "https://github.com/DsXack/container.git"
 }
