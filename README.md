@@ -1,35 +1,28 @@
-# container
-[![Build Status](https://travis-ci.org/DsXack/container.svg?branch=master)](https://travis-ci.org/DsXack/container)
+# Container
+[![Build Status](https://travis-ci.com/dsxack/container.svg?branch=master)](https://travis-ci.com/dsxack/container)
 
+Dependency injection container
 
-### install
+### Install
 
+With npm:
 ```sh
-npm install git+https://github.com/DsXack/container.git
+npm install --save @dsxack/container
 ```
 
-### use
+With yarn:
+```sh
+yarn add @dsxack/container
+```
+
+### Use
 
 ```javascript
 var container = new Container();
 
-container.bind('factoryName', function (container, parameters) {
+container.factory('factoryName', function (container, parameters) {
     // return instance
 });
 
-container.make('factoryName', parameters);
-```
-
-### build
-
-```sh
-npm install
-gulp
-```
-
-### test
-
-```sh
-npm install
-npm test
+container.get('factoryName', parameters);
 ```

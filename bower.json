@@ -1,6 +1,6 @@
 {
   "name": "container",
-  "homepage": "https://github.com/DsXack/container",
+  "homepage": "https://github.com/dsxack/container",
   "authors": [
     "Smotrov Dmitriy <dsxack@gmail.com>"
   ],
@@ -12,9 +12,8 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "spec",
+    "tests",
     "src",
-    "gulpfile.coffee",
     "package.json"
   ]
 }
