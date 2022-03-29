@@ -1,0 +1,73 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "02:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: webpack
+    versions:
+    - 5.18.0
+    - 5.19.0
+    - 5.20.0
+    - 5.20.1
+    - 5.20.2
+    - 5.21.2
+    - 5.22.0
+    - 5.23.0
+    - 5.24.0
+    - 5.24.1
+    - 5.24.2
+    - 5.24.3
+    - 5.24.4
+    - 5.25.1
+    - 5.26.0
+    - 5.26.2
+    - 5.26.3
+    - 5.27.1
+    - 5.27.2
+    - 5.28.0
+    - 5.30.0
+    - 5.31.0
+    - 5.31.2
+    - 5.32.0
+    - 5.33.2
+    - 5.34.0
+    - 5.35.0
+    - 5.35.1
+    - 5.36.0
+  - dependency-name: ts-loader
+    versions:
+    - 8.0.14
+    - 8.0.15
+    - 8.0.16
+    - 8.0.17
+    - 8.0.18
+    - 8.1.0
+    - 9.0.0
+    - 9.0.2
+    - 9.1.0
+  - dependency-name: "@types/jest"
+    versions:
+    - 26.0.20
+    - 26.0.21
+    - 26.0.22
+  - dependency-name: ts-jest
+    versions:
+    - 26.5.0
+    - 26.5.1
+    - 26.5.2
+    - 26.5.3
+    - 26.5.4
+  - dependency-name: typescript
+    versions:
+    - 4.1.4
+    - 4.1.5
+    - 4.2.2
+    - 4.2.3
+  - dependency-name: webpack-cli
+    versions:
+    - 4.4.0
+    - 4.5.0
